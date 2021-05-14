@@ -28,7 +28,7 @@ const useStyles = makeStyles({
 
   },
   container: {
-    height: '40vh',
+    height: '60vh',
     overflow: 'auto',
     display: 'flex',
     flexDirection: 'column-reverse',

@@ -37,7 +37,7 @@ const roomSlice = createSlice({
             state.chatMessages = [...state.chatMessages, action.payload.messageDetails]
         },
         addVideoToPlaylist(state, action) {
-            state.videos = [...state.videos, action.payload.videoDetails]
+            state.videos = [...state.videos, action.payload]
         },
         removeVideoFromPlaylist(state, action) {
             //TODO

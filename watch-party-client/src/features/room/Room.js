@@ -31,9 +31,8 @@ const useStyles = makeStyles(theme => ({
         flexDirection: "column",
     },
     roomTabsWrapper: {
-        minHeight: "100%",
+        height: "80vh",
         backgroundColor: "red",
-        maxHeight: "60vh"
     }
 
 }));
@@ -82,7 +81,9 @@ const Room = props => {
         });
 
         socket.on("addVideoToPlaylist", data => {
+            console.log(data)
             dispatch(addVideoToPlaylist(data))
+            dispatch(showInfo({message: "video added to playlist"}))
         });
 
         return () => {

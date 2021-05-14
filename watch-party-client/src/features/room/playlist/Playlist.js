@@ -11,6 +11,7 @@ import TextField from '@material-ui/core/TextField';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import PreviewCard from './PreviewCard';
 
 const Playlist = (props) => {
     const useStyles = makeStyles((theme) => ({
@@ -60,8 +61,7 @@ const Playlist = (props) => {
         if (videoId) {
             socket.emit('addVideoToPlaylist', { 'room': roomId, 'url': videoUrl, videoId }, (response) => {
                 if (!response.isSuccess) {
-                    //TODO alert handling
-                    // console.log(response.message);
+                    setVideoUrlValid(false)
                 }
             })
         }
@@ -72,7 +72,6 @@ const Playlist = (props) => {
 
     return (
         <React.Fragment>
-
             <Box className={classes.addBtnContainer}>
                 <TextField
                     id="outlinedbasic"
@@ -96,26 +95,18 @@ const Playlist = (props) => {
                 </Tooltip>
                 {/* </Grid> */}
             </Box>
-
             <Box>
                 <List>
                     {
                         playlistItems.map(
-                            (playlistItem) =>
-                                <ListItem key={playlistItem.videoId.toString()}>
-                                    <ListItemAvatar>
-                                        <Avatar>
-                                            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-                                        </Avatar>
-                                    </ListItemAvatar>
-                                    <ListItemText primary="Photos" secondary="Jan 9, 2014" />
+                            (itemDetails) =>
+                                <ListItem key={itemDetails.videoId.toString()}>
+                                    <PreviewCard previewDetails = {itemDetails}/>
                                 </ListItem>
                         )
                     }
                 </List>
             </Box>
-            {/* <Box className={classes.addBtnContainer}>
-            </Box> */}
         </React.Fragment>
     )
 }

@@ -125,19 +125,16 @@ io.on("connection", socket => {
             .emit('recieveChatMessage', response)
     });
 
-    socket.on('addVideoToPlaylist', (data, callback) => {
-
-        // try {
-        let response = { data }
-        let { room, videoId } = data
-        getVideoDetails(videoId);
-        let result = Rooms.addVideoToPlayList(room, { videoId })
+    socket.on('addVideoToPlaylist', async (data, callback) => {
+        let { room, videoId, addedBy } = data
+        let result = await Rooms.addVideoToPlayList(room, { videoId, addedBy })
+        console.log(result)
         if (result.isSuccess) {
             callback({
                 isSuccess: true,
             })
             io.in(data.room)
-                .emit('addVideoToPlaylist', response)
+                .emit('addVideoToPlaylist', result.data)
         }
         else {
             callback({
@@ -145,14 +142,7 @@ io.on("connection", socket => {
                 message: result.message
             })
         }
-        // }
-        // catch (e) {
-
-        // }
     });
-
-
-
 
     socket.on("pauseVideo", data => {
         io.in(data.room)

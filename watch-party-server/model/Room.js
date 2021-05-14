@@ -1,4 +1,5 @@
-const ActionFailedError = require('../utils/ActionFailedError')
+const ActionFailedError = require('../utils/ActionFailedError');
+const { getVideoDetails } = require('../utils/externalApis');
 const {createFailedAction, createSuccessAction} = require('../utils/helpers')
 
 class Room {
@@ -59,11 +60,23 @@ class Rooms {
         }
     }
 
-    addVideoToPlayList(roomId, videoDetails) {
+    async addVideoToPlayList(roomId, videoDetails) {
         let room =  this.rooms.get(roomId);
         if (room) {
-            room.addToPlayList(videoDetails);
-            return createSuccessAction("video added to playlist");
+            try {
+                let additionalDetails = await getVideoDetails(videoDetails.videoId);
+                console.log(additionalDetails);
+                room.addToPlayList({videoDetails});
+                let responseData = {videoId: videoDetails.videoId,
+                     videoTitle:additionalDetails.title,
+                     thumbnailUrl:additionalDetails.thumbnail_url,
+                     authorName:additionalDetails.author_name}
+                return createSuccessAction("video added to playlist", responseData);
+            }
+            catch (e) {
+                console.log(e)
+                return createFailedAction('Error adding video to playlist, try again later')
+            }
         }
         else {
             return createFailedAction('Room does not exist');

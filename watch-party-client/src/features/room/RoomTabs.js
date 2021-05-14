@@ -54,6 +54,7 @@ const RoomTabs = (props) => {
         >
           <Tab label="Playlist" {...a11yProps(0)} />
           <Tab label="Chat" {...a11yProps(1)} />
+          <Tab label="Participants" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <SwipeableViews
@@ -65,6 +66,9 @@ const RoomTabs = (props) => {
           <Playlist socket={socket}/>
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction} className={classes.tabs}>
+          <Chat socket={socket}/>
+        </TabPanel>
+        <TabPanel value={value} index={2} dir={theme.direction} className={classes.tabs}>
           <Chat socket={socket}/>
         </TabPanel>
       </SwipeableViews>
