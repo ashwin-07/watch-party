@@ -49,13 +49,14 @@ io.on("connection", socket => {
             Rooms.createRoom(roomId, roomName);
             Rooms.addRoomAdmin(roomId, userName);
             console.log(Rooms.getParticipants(roomId))
-            Rooms.addUserToRoom(roomId, userName)
-            console.log(Rooms.getParticipants(roomId))
+            Rooms.addUserToRoom(roomId, userName, true)
+            let participants = Rooms.getParticipants(roomId)
             socket.join(roomId);
             callback({
                 isSuccess: true,
                 roomId,
                 isAdmin: true,
+                participants,
                 message: 'room created successfully'
             });
         }
@@ -74,24 +75,30 @@ io.on("connection", socket => {
         const { id } = socket.client;
         const { roomId, userName } = data;
         try {
-            Rooms.addUserToRoom(roomId, userName)
-            console.log(Rooms.getParticipants(roomId))
+            Rooms.addUserToRoom(roomId, userName, false);
+            let playlist = Rooms.getPlaylistItems(roomId);
+            console.log(playlist)
+            let participants = Rooms.getParticipants(roomId);
             socket.join(data.roomId);
+            io.in(data.roomId).emit('addParticipant', {username:userName, isAdmin:false})
             callback({
                 isSuccess: true,
                 roomId,
+                playlist,
+                participants,
                 message: "joined room"
             })
         }
         catch (e) {
             console.log(e)
+            let message = "Error occurred, please try later"
             if (e instanceof ActionFailedError) {
-                console.log(e)
-                callback({
-                    isSuccess: false,
-                    message: e.message
-                })
+                message = e.message;
             }
+            callback({
+                isSuccess: false,
+                message
+            })
         }
     });
 
@@ -107,36 +114,52 @@ io.on("connection", socket => {
 
     socket.on('broadcastChatMessage', data => {
         let response = {}
-        const clients = io.sockets.adapter.rooms.get(data.room);
+        try {
+            const clients = io.sockets.adapter.rooms.get(data.room);
 
-        //to get the number of clients in this room
-        // const numClients = clients ? clients.size : 0;
-        // console.log('clients in room')
-        // for (const clientId of clients ) {
+            //to get the number of clients in this room
+            // const numClients = clients ? clients.size : 0;
+            // console.log('clients in room')
+            // for (const clientId of clients ) {
 
-        //     //this is the socket of each client in the room.
-        //     const clientSocket = io.sockets.sockets.get(clientId);
-        //     console.log(clientId)
+            //     //this is the socket of each client in the room.
+            //     const clientSocket = io.sockets.sockets.get(clientId);
+            //     console.log(clientId)
 
-        // }
-        const { room, author, message } = data
-        response["messageDetails"] = { room, author, message, type: 'user', 'timestamp': new Date().getMilliseconds() }
-        io.in(data.room)
-            .emit('recieveChatMessage', response)
+            // }
+            const { room, author, message } = data
+            response["messageDetails"] = { room, author, message, type: 'user', 'timestamp': new Date().getMilliseconds() }
+            io.in(data.room)
+                .emit('recieveChatMessage', response)
+        }
+        catch (e) {
+            console.log(e)
+        }
     });
 
     socket.on('addVideoToPlaylist', async (data, callback) => {
-        let { room, videoId, addedBy } = data
-        let result = await Rooms.addVideoToPlayList(room, { videoId, addedBy })
-        console.log(result)
-        if (result.isSuccess) {
-            callback({
-                isSuccess: true,
-            })
-            io.in(data.room)
-                .emit('addVideoToPlaylist', result.data)
+        try {
+            let { room, videoId, addedBy } = data
+            let result = await Rooms.addVideoToPlayList(room, { videoId, addedBy })
+            if (result.isSuccess) {
+                callback({
+                    isSuccess: true,
+                })
+                io.in(data.room).emit('addVideoToPlaylist', result.data)
+            }
+            else {
+                callback({
+                    isSuccess: false,
+                    message: result.message
+                })
+            }
         }
-        else {
+        catch (e) {
+            console.log(e)
+            let message = "Error occurred, please try later"
+            if (e instanceof ActionFailedError) {
+                message = e.message;
+            }
             callback({
                 isSuccess: false,
                 message: result.message

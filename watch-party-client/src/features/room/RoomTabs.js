@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab';
 import TabPanel from '../../components/TabPanel'
 import Playlist from './playlist/Playlist';
 import Chat from './chat/Chat';
+import Participants from './Participants'
 
 
 
@@ -69,7 +70,7 @@ const RoomTabs = (props) => {
           <Chat socket={socket}/>
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction} className={classes.tabs}>
-          <Chat socket={socket}/>
+          <Participants/>
         </TabPanel>
       </SwipeableViews>
     </div>

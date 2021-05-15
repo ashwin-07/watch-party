@@ -10,7 +10,8 @@ const initialState = {
     isError: false,
     isInfo: false,
     chatMessages: [],
-    videos: []
+    videos: [],
+    participants:[]
 }
 
 
@@ -20,6 +21,12 @@ const roomSlice = createSlice({
     reducers: {
         initializeRoom(state, action) {
             state.roomId = action.payload.roomId;
+            if (action.payload.playlist) {
+                state.videos = action.payload.playlist;
+            }
+            if (action.payload.participants) {
+                state.participants = action.payload.participants;
+            }
         },
         showError(state, action) {
             state.message = action.payload.message || "error occured"
@@ -41,6 +48,9 @@ const roomSlice = createSlice({
         },
         removeVideoFromPlaylist(state, action) {
             //TODO
+        },
+        addParticipant(state, action) {
+            state.participants = [...state.participants, action.payload]
         }
     }
 })
@@ -51,7 +61,8 @@ export const {
     showInfo,
     addChatMessage,
     addVideoToPlaylist,
-    removeVideoFromPlaylist
+    removeVideoFromPlaylist,
+    addParticipant
 } = roomSlice.actions
 
 

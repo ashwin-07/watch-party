@@ -1,10 +1,10 @@
 const ActionFailedError = require('../utils/ActionFailedError');
 const { getVideoDetails } = require('../utils/externalApis');
-const {createFailedAction, createSuccessAction} = require('../utils/helpers')
+const { createFailedAction, createSuccessAction } = require('../utils/helpers')
 
 class Room {
 
-    constructor(roomName){
+    constructor(roomName) {
         this.users = [];
         this.playlist = [];
         // this.messages = [];
@@ -17,21 +17,21 @@ class Room {
         this.users.append(userName);
     }
 
-    addAdmin(user){
+    addAdmin(user) {
         this.admin.push(user);
     }
 
 
-    addToPlayList(url){
+    addToPlayList(url) {
         this.playlist.push(url);
     }
 
-    getPlayList(){
+    getPlayList() {
         return this.playlist;
     }
 
     isUserInRoom(user) {
-        this.users.get(use);
+        this.users.get(user);
     }
 
 }
@@ -42,54 +42,49 @@ class Rooms {
         this.rooms = new Map();
     }
 
-    createRoom(roomId, roomName){
+    createRoom(roomId, roomName) {
         let newRoom = new Room(roomName);
         this.rooms.set(roomId, newRoom);
         return roomId;
     }
 
-    addRoomAdmin(roomId, user){
-        let room =  this.rooms.get(roomId);
+    addRoomAdmin(roomId, user) {
+        let room = this.rooms.get(roomId);
         if (room) {
             room.addAdmin(user);
-            // return new ActionResult(true, 'User added successfully'
         }
         else {
-            // return new ActionResult(false , 'Room does not exist')
             throw new ActionFailedError('Room does not exist');
         }
     }
 
     async addVideoToPlayList(roomId, videoDetails) {
-        let room =  this.rooms.get(roomId);
+        let room = this.rooms.get(roomId);
         if (room) {
-            try {
-                let additionalDetails = await getVideoDetails(videoDetails.videoId);
-                console.log(additionalDetails);
-                room.addToPlayList({videoDetails});
-                let responseData = {videoId: videoDetails.videoId,
-                     videoTitle:additionalDetails.title,
-                     thumbnailUrl:additionalDetails.thumbnail_url,
-                     authorName:additionalDetails.author_name}
-                return createSuccessAction("video added to playlist", responseData);
+            let additionalDetails = await getVideoDetails(videoDetails.videoId);
+            console.log(additionalDetails);
+            let responseData = {
+                videoId: videoDetails.videoId,
+                videoTitle: additionalDetails.title,
+                thumbnailUrl: additionalDetails.thumbnail_url,
+                authorName: additionalDetails.author_name
             }
-            catch (e) {
-                console.log(e)
-                return createFailedAction('Error adding video to playlist, try again later')
-            }
+            room.addToPlayList(responseData);
+            return createSuccessAction("video added to playlist", responseData);
         }
         else {
-            return createFailedAction('Room does not exist');
+            return createFailedAction("Failed, Room does not exist");
         }
     }
 
     getPlaylistItems(roomId) {
-        let room =  this.rooms.get(roomId);
+        let room = this.rooms.get(roomId);
         if (room) {
-            return createSuccessAction("items fetched successfully",room.getPlayList());
+            console.log(room.getPlayList())
+            return room.getPlayList();
         }
         else {
-            return createFailedAction('Room does not exist');
+            throw new ActionFailedError('Room does not exist');
         }
     }
 
@@ -107,15 +102,15 @@ class Rooms {
     //     }
     // }
 
-    doesRoomExist(roomId){
+    doesRoomExist(roomId) {
         return this.rooms.has(roomId);
     }
 
-    addUserToRoom(roomId, user) {
-        let room =  this.rooms.get(roomId);
+    addUserToRoom(roomId, user, isAdmin) {
+        let room = this.rooms.get(roomId);
         if (room) {
             if (room.users.indexOf(user) == -1) {
-                room.users.push(user);
+                room.users.push({username:user, isAdmin});
             }
             else {
                 throw new ActionFailedError("Try a different username");
@@ -127,7 +122,7 @@ class Rooms {
     }
 
     getParticipants(roomId) {
-        let room =  this.rooms.get(roomId);
+        let room = this.rooms.get(roomId);
         if (room) {
             return room.users
         }

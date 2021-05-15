@@ -12,7 +12,7 @@ import Alert from '../../components/Alert';
 import { socket } from '../../utils/socketConnection'
 import { useHistory } from "react-router-dom";
 import { pauseVideo, playVideo } from "./player/PlayerSlice";
-import { addChatMessage, addVideoToPlaylist } from './RoomSlice';
+import { addChatMessage, addVideoToPlaylist, addParticipant } from './RoomSlice';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -84,6 +84,12 @@ const Room = props => {
             console.log(data)
             dispatch(addVideoToPlaylist(data))
             dispatch(showInfo({message: "video added to playlist"}))
+        });
+
+        socket.on("addParticipant", data => {
+            console.log("adding participant")
+            console.log(data)
+            dispatch(addParticipant(data))
         });
 
         return () => {

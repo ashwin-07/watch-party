@@ -8,10 +8,9 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
-import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import { useSelector } from 'react-redux';
 import PreviewCard from './PreviewCard';
+import { Typography } from '@material-ui/core';
 
 const Playlist = (props) => {
     const useStyles = makeStyles((theme) => ({
@@ -27,23 +26,23 @@ const Playlist = (props) => {
         },
         videoUrlInput: {
             width: '75%'
+        },
+        playlistContainer: {
+            maxHeight: '60vh',
+            overflow: 'auto'
         }
     }));
 
     const { socket } = props;
-
-    // let playlistItems = [{videoId:'1'}, {videoId:'2'}, {videoId:'3'}]
-    const { roomId, playlistItems } = useSelector(
+    const { roomId, playlistItems, isAdmin } = useSelector(
         (state) => {
             return {
                 roomId: state.room.roomId,
                 playlistItems: state.room.videos,
+                isAdmin: state.user.isAdmin
             }
         }
     )
-
-    //url to get video details
-    //https://noembed.com/embed?url=https://www.youtube.com/watch?v=cQVFYVMhPlw
 
     const classes = useStyles();
 
@@ -72,7 +71,7 @@ const Playlist = (props) => {
 
     return (
         <React.Fragment>
-            <Box className={classes.addBtnContainer}>
+            { isAdmin && <Box className={classes.addBtnContainer}>
                 <TextField
                     id="outlinedbasic"
                     label="Video URL"
@@ -80,6 +79,7 @@ const Playlist = (props) => {
                     size="small"
                     className={classes.videoUrlInput}
                     error={!isVideoUrlValid}
+                    style={{ marginTop: '10px' }}
                     onChange={(e) => setVideoUrl(e.target.value)}
                     helperText={isVideoUrlValid ? "" : "Provide a valid youtube video URL"}
                 />
@@ -95,15 +95,20 @@ const Playlist = (props) => {
                 </Tooltip>
                 {/* </Grid> */}
             </Box>
-            <Box>
+            }
+            <Box className={classes.playlistContainer}>
                 <List>
                     {
-                        playlistItems.map(
-                            (itemDetails) =>
-                                <ListItem key={itemDetails.videoId.toString()}>
-                                    <PreviewCard previewDetails = {itemDetails}/>
-                                </ListItem>
-                        )
+                        playlistItems.length > 0 ?
+                            playlistItems.map(
+                                (itemDetails) =>
+                                    <ListItem key={itemDetails.videoId.toString()}>
+                                        <PreviewCard previewDetails={itemDetails} />
+                                    </ListItem>
+                            ) :
+                            <Box display="flex" justifyContent="center" alignItems="center">
+                                <Typography>No videos found in playlist</Typography>
+                            </Box>
                     }
                 </List>
             </Box>
