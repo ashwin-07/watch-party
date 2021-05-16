@@ -80,12 +80,14 @@ io.on("connection", socket => {
             console.log(playlist)
             let participants = Rooms.getParticipants(roomId);
             socket.join(data.roomId);
-            io.in(data.roomId).emit('addParticipant', {username:userName, isAdmin:false})
+            io.in(data.roomId).emit('addParticipant', { username: userName, isAdmin: false })
+            let videoDetails = Rooms.getCurrentVideoDetails(roomId)
             callback({
                 isSuccess: true,
                 roomId,
                 playlist,
                 participants,
+                currentVideoDetails: videoDetails,
                 message: "joined room"
             })
         }
@@ -146,6 +148,13 @@ io.on("connection", socket => {
                     isSuccess: true,
                 })
                 io.in(data.room).emit('addVideoToPlaylist', result.data)
+                let playlistSize = Rooms.getPlayListSize(room)
+                console.log(playlistSize)
+                if (playlistSize == 1) {
+                    let playerDetails = { videoId, timestamp: 0 }
+                    Rooms.setCurrentVideoDetails(room,playerDetails)
+                    io.in(data.room).emit("resumePlayer", playerDetails)
+                }
             }
             else {
                 callback({
@@ -172,6 +181,8 @@ io.on("connection", socket => {
             .emit("pausePlayer", data)
     })
     socket.on("playVideo", data => {
+        console.log(data)
+        Rooms.setCurrentVideoDetails(data.room, data)
         io.in(data.room)
             .emit("resumePlayer", data)
     })

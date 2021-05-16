@@ -11,6 +11,7 @@ class Room {
         this.roomName = roomName;
         this.createdTime = Date.now();
         this.admin = [];
+        this.currentVideoDetails = {};
     }
 
     addUser() {
@@ -30,10 +31,21 @@ class Room {
         return this.playlist;
     }
 
+    getPlayListSize() {
+        return this.playlist.length;
+    }
+
     isUserInRoom(user) {
         this.users.get(user);
     }
 
+    setCurrentVideoDetails(videoDetails){
+        this.currentVideoDetails = videoDetails;
+    }
+
+    getCurrentVideoDetails(){
+        return this.currentVideoDetails;
+    }
 }
 
 class Rooms {
@@ -82,6 +94,36 @@ class Rooms {
         if (room) {
             console.log(room.getPlayList())
             return room.getPlayList();
+        }
+        else {
+            throw new ActionFailedError('Room does not exist');
+        }
+    }
+
+    getPlayListSize(roomId) {
+        let room = this.rooms.get(roomId);
+        if (room) {
+            return room.getPlayListSize();
+        }
+        else {
+            throw new ActionFailedError('Room does not exist');
+        }
+    }
+
+    getCurrentVideoDetails(roomId) {
+        let room = this.rooms.get(roomId);
+        if (room) {
+            return room.getCurrentVideoDetails();
+        }
+        else {
+            throw new ActionFailedError('Room does not exist');
+        }
+    }
+
+    setCurrentVideoDetails(roomId, videoDetails) {
+        let room = this.rooms.get(roomId);
+        if (room) {
+            return room.setCurrentVideoDetails(videoDetails);
         }
         else {
             throw new ActionFailedError('Room does not exist');

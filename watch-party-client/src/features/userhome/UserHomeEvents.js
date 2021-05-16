@@ -1,6 +1,7 @@
 import { createRoomStart, createRoomSuccess, createRoomFailure, joinRoomStart, joinRoomSuccess, joinRoomFailure } from './userHomeSlice'
 import { initializeRoom } from '../room/RoomSlice'
 import { initializeUser } from '../room/UserSlice'
+import { playVideo } from '../room/player/PlayerSlice'
 
 export const createRoom = (socket, userName, roomName) => {
 
@@ -36,7 +37,8 @@ export const joinRoom = (socket, userName, roomId) => {
                     console.log(response)
                     dispatch(joinRoomSuccess({ roomId: response.roomId }))
                     dispatch(initializeUser({ username: userName, isAdmin: false }))
-                    dispatch(initializeRoom({ roomId: response.roomId, playlist:response.playlist, participants:response.participants }))
+                    dispatch(initializeRoom({ roomId: response.roomId, playlist:response.playlist, participants:response.participants}))
+                    dispatch(playVideo({roomId: response.roomId, videoId:response.currentVideoDetails.videoId,  timeStamp: response.currentVideoDetails.timeStamp}))
                 }
                 else {
                     dispatch(joinRoomFailure({ message: response.message }))

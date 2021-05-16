@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
         //padding:"20px"
     },
     playerWrapper: {
-        backgroundColor: "#7d7d7d",
+        backgroundColor: "#000000",
         maxHeight: "60vh",
     },
     title: {
